@@ -3,9 +3,11 @@
 ## What's in the folder
 
 ```
-index.html     the landing page
-thanks.html    the thank-you page people land on after they tip
-assets/        favicon set + mantis-astronaut.png
+index.html          the landing page
+thanks.html         the thank-you page people land on after they tip
+assets/             favicon set + mantis-astronaut.png
+assets/mantis/      the Synapse mantis parts + mantis-rig.js (the animated mantis at the top)
+assets/projects/    project graphics: pinball video, Synapse fractal, CsiRadar32 infographic, and more
 ```
 
 ## Put it online
@@ -53,6 +55,24 @@ https://www.amazon.com/dp/PRODUCTID/?tag=5t31th-20
 ```
 
 The required Amazon disclosure ("As an Amazon Associate I earn from qualifying purchases.") is already on the page under the gear list. Leave it there.
+
+## Project graphics
+
+Every section has a graphic now. They all live in `assets/projects/`.
+
+| Section | File | What it is |
+| --- | --- | --- |
+| MantisCryptoPinball | `pinball.webm`, `pinball.mp4`, `pinball-poster.webp` | the animation |
+| Mantis Synapse | `synapse-fractal.js` | the fractal dive, running live |
+| SpaceMantis | `spacemantis.png` | the astronaut mantis |
+| MantisStudio | `studio.png` | drum pads and mixer, drawn from the firmware's own screen code |
+| Mantis Chat | `chat.png` | stand-in graphic |
+| MantisCalc | `calc.png` | the electrical page, from the calculator's `ui-preview.png` |
+| CsiRadar32 | `csiradar.webp`, `csiradar-820.webp` | the infographic |
+| Mantis Cam | `cam.png` | stand-in graphic |
+| Device Radar | `deviceradar.png` | stand-in graphic |
+
+To swap any PNG for a real screenshot later, save the new image over the old one with the same name. No code changes. Stand-in graphics show about 150 px tall; screenshots in MantisStudio and MantisCalc fill the card width.
 
 ## Setting up tips (Stripe Payment Links)
 
