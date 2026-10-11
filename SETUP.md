@@ -4,7 +4,7 @@
 
 ```
 index.html          the landing page
-thanks.html         the thank-you page people land on after they tip
+thanks.html         the thank-you page people land on after they tip on stripe
 assets/             favicon set + mantis-astronaut.png
 assets/mantis/      the Synapse mantis parts + mantis-rig.js (the animated mantis at the top)
 assets/projects/    project graphics: pinball video, Synapse fractal, CsiRadar32 infographic, and more
