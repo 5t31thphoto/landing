@@ -12,14 +12,14 @@ assets/projects/    project graphics: pinball video, Synapse fractal, CsiRadar32
 
 ## Put it online
 
-This page lives in its own repo, separate from your project sites. Any repo name works. These steps use `basaltsoftworks`.
+This page lives in its own repo, separate from your project sites. Any repo name works. This page lives in the `landing` repo.
 
-1. On GitHub, create a new repo named **`basaltsoftworks`**.
+1. On GitHub, use the repo named **`landing`**.
 2. Upload `index.html`, `thanks.html` and the whole `assets/` folder to the root of the main branch.
 3. Go to **Settings > Pages**. Set Source to **Deploy from a branch**, pick `main` and `/ (root)`, and save.
-4. After a minute or two, the page is live at `https://5t31thphoto.github.io/basaltsoftworks/`. That's the link you share.
+4. After a minute or two, the page is live at `https://5t31thphoto.github.io/landing/`. That's the link you share.
 
-If you pick a different repo name, update two spots to match: the `og:image` line near the top of `index.html` (it's the preview image when you share the link), and the Stripe redirect URL below.
+If you ever rename the repo, update the link-preview URLs near the top of `index.html` and the Stripe redirect URL below to match.
 
 ## Adding links later
 
@@ -74,6 +74,15 @@ Every section has a graphic now. They all live in `assets/projects/`.
 
 To swap any PNG for a real screenshot later, save the new image over the old one with the same name. No code changes. Stand-in graphics show about 150 px tall; screenshots in MantisStudio and MantisCalc fill the card width.
 
+## Link previews
+
+When you share the link in a text or on social media, the preview uses `assets/og-card.jpg`, a 1200×630 card made for that purpose. The page tells apps where to find it with full web addresses that point at `https://5t31thphoto.github.io/landing/`. If you ever rename the repo, update the URLs marked near the top of `index.html`.
+
+Apps remember old previews for a while. To see the new one right away:
+
+- **Facebook / Messenger / Instagram:** paste the link into the Facebook Sharing Debugger (developers.facebook.com/tools/debug) and press **Scrape Again**.
+- **iMessage and most other apps:** share the link with something added to the end, like `https://5t31thphoto.github.io/landing/?v=2`. It opens the same page but gets a fresh preview.
+
 ## Setting up tips (Stripe Payment Links)
 
 Each tip button is a Stripe Payment Link that sends people to `thanks.html` after they pay.
@@ -115,7 +124,7 @@ For each one:
 1. **Payment Links > + New**, pick the pricing type from the table.
 2. Enter the name and amount. Leave quantity adjustment off.
 3. Open the **After payment** tab, choose **Don't show confirmation page**, and enter
-   `https://5t31thphoto.github.io/basaltsoftworks/thanks.html`
+   `https://5t31thphoto.github.io/landing/thanks.html`
 4. **Create link** and copy the URL (`https://buy.stripe.com/...`).
 
 **Test, then go live**
