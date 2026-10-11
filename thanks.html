@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transmission received · BasaltSoftworks</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#050510">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+:root{--bg:#050510;--panel:#0b0b1a;--teal:#00A5A5;--teal-hi:#33d6d6;--violet:#8F00A5;--magenta:#c000e0;--lime:#A8FF00;--lime-hi:#d6ff66;--ink:#E8E8F0;--dim:#8a8aa5;
+  --body:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Mono",Consolas,"Courier New",monospace;--head:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:40px 20px;overflow-x:hidden;color:var(--ink);font:15px/1.65 var(--body);text-align:center;
+  background:radial-gradient(ellipse 60% 45% at 50% 30%,rgba(143,0,165,.22),transparent 70%),radial-gradient(ellipse 50% 30% at 50% 100%,rgba(0,165,165,.15),transparent 70%),var(--bg)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,rgba(0,165,165,.02) 0 1px,transparent 1px 3px)}
+main{position:relative;z-index:2;max-width:560px}
+.astro{width:150px;height:auto;margin:0 auto 34px;image-rendering:pixelated;image-rendering:crisp-edges;filter:drop-shadow(0 0 26px rgba(192,0,224,.45));animation:drift 4s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+.mark{display:block;color:var(--teal);font-size:.9rem;margin-bottom:10px}
+h1{font-family:var(--head);font-weight:850;font-size:clamp(2.2rem,7vw,3.4rem);letter-spacing:-.025em;line-height:1;margin:0 0 18px;color:var(--lime);text-shadow:0 0 30px rgba(168,255,0,.3)}
+p{margin:0 auto 14px;max-width:46ch;color:#c4c4d6}
+p.big{color:var(--ink);font-size:1.08rem}
+.btn{display:inline-block;margin-top:22px;font-family:var(--head);font-weight:700;padding:13px 22px;border-radius:4px;text-decoration:none;background:var(--lime);color:#0a1000;border:1px solid var(--lime)}
+.btn:hover{background:var(--lime-hi);box-shadow:0 0 22px rgba(168,255,0,.35)}
+.btn:focus-visible{outline:2px solid var(--teal-hi);outline-offset:3px}
+.bit{position:fixed;top:-10px;width:6px;height:6px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.astro,.bit{animation:none}.bit{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <img class="astro" src="assets/mantis-astronaut.png" width="237" height="420" alt="The Mantis in a space suit">
+  <span class="mark">// transmission received</span>
+  <h1>You're a legend.</h1>
+  <p class="big">Your tip just landed. It goes straight into new boards and the next project.</p>
+  <p>The whole team says thanks. A receipt is on its way to your inbox.</p>
+  <a class="btn" href="./">Back to the projects</a>
+</main>
+<script>
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const c = ["#A8FF00","#33d6d6","#c000e0","#00A5A5"];
+  for (let i = 0; i < 60; i++) {
+    const b = document.createElement("span");
+    b.className = "bit";
+    b.style.left = Math.random() * 100 + "vw";
+    b.style.background = c[i % c.length];
+    b.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+    b.style.animationDuration = (2.6 + Math.random() * 2.6) + "s";
+    b.style.animationDelay = (Math.random() * 1.4) + "s";
+    document.body.appendChild(b);
+  }
+}
+</script>
+</body>
+</html>

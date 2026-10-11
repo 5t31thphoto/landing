@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BasaltSoftworks · Mantis games, tools and signal toys for ESP32</title>
+<meta name="description" content="Games, tools and signal toys for tiny ESP32 devices. Flash them from your browser, play offline, and dig as deep as you want. MantisCryptoPinball, MantisCore and MantisSec by BasaltSoftworks.">
+<meta name="theme-color" content="#050510">
+<meta property="og:title" content="BasaltSoftworks">
+<meta property="og:description" content="Small devices. Big secrets. Games, tools and signal toys for ESP32 boards.">
+<meta property="og:image" content="https://5t31thphoto.github.io/basaltsoftworks/assets/apple-touch-icon.png">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/favicon.png" sizes="64x64">
+<link rel="icon" type="image/png" href="assets/favicon-32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+:root{
+  --ms-bg:#050510; --ms-bg-panel:#0b0b1a; --ms-bg-elev:#131328;
+  --ms-teal:#007373; --ms-teal-lo:#00A5A5; --ms-teal-hi:#33d6d6;
+  --ms-violet:#5D005D; --ms-violet-lo:#8F00A5; --ms-violet-hi:#c000e0;
+  --ms-lime:#A8FF00; --ms-lime-hi:#d6ff66;
+  --ms-ink:#E8E8F0; --ms-ink-dim:#8a8aa5;
+  --ms-warn:#ffb020; --ms-alert:#FF2255;
+  --ms-border:rgba(0,165,165,.25);
+  --ms-glow-teal:rgba(0,165,165,.35); --ms-glow-lime:rgba(168,255,0,.35);
+  --ms-font-body:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Mono",Consolas,"Courier New",monospace;
+  --ms-font-head:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --wrap:1100px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{
+  margin:0;min-height:100vh;overflow-x:hidden;
+  color:var(--ms-ink);font-family:var(--ms-font-body);font-size:15px;line-height:1.65;
+  background:
+    radial-gradient(ellipse 70% 40% at 85% 0%, rgba(143,0,165,.16), transparent 70%),
+    radial-gradient(ellipse 60% 35% at 5% 10%, rgba(0,165,165,.12), transparent 70%),
+    var(--ms-bg);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:repeating-linear-gradient(0deg,rgba(0,165,165,.02) 0 1px,transparent 1px 3px);
+}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--ms-teal-hi)}
+a:hover{color:var(--ms-lime)}
+:focus-visible{outline:2px solid var(--ms-lime);outline-offset:3px;border-radius:2px}
+.wrap{position:relative;z-index:2;max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-999px;top:8px;z-index:100;background:var(--ms-lime);color:#050510;padding:8px 12px;font-weight:700}
+.skip:focus{left:8px}
+.pixel{image-rendering:pixelated;image-rendering:crisp-edges}
+
+h1,h2,h3{font-family:var(--ms-font-head);margin:0;line-height:1.1}
+h2{font-size:clamp(1.8rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-.015em}
+h3{font-size:1.35rem;font-weight:750}
+p{margin:0 0 1em;max-width:66ch}
+.dim{color:var(--ms-ink-dim)}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--ms-font-head);font-weight:700;font-size:.98rem;line-height:1;
+  padding:13px 20px;border-radius:4px;text-decoration:none;cursor:pointer;
+  border:1px solid var(--ms-teal-lo);color:var(--ms-ink);background:rgba(0,115,115,.18);
+  transition:background .15s,border-color .15s,box-shadow .15s,color .15s;
+}
+.btn:hover{border-color:var(--ms-teal-hi);background:rgba(0,165,165,.28);color:var(--ms-ink);box-shadow:0 0 18px var(--ms-glow-teal)}
+.btn.go{background:var(--ms-lime);border-color:var(--ms-lime);color:#0a1000}
+.btn.go:hover{background:var(--ms-lime-hi);border-color:var(--ms-lime-hi);color:#0a1000;box-shadow:0 0 22px var(--ms-glow-lime)}
+.soon{font-size:.85rem;color:var(--ms-ink-dim);border:1px dashed rgba(138,138,165,.45);padding:9px 12px;border-radius:4px;white-space:nowrap}
+.need{font-size:.88rem;color:var(--ms-ink-dim)}
+.need a{color:var(--ms-teal-hi)}
+
+/* ---------- panel corners (MantisSec) ---------- */
+.panel{position:relative;background:var(--ms-bg-panel);border:1px solid var(--ms-border);border-radius:6px}
+.panel::before,.panel::after{content:"";position:absolute;width:20px;height:20px;opacity:.7;pointer-events:none}
+.panel::before{top:-1px;left:-1px;border-top:2px solid var(--ms-teal-lo);border-left:2px solid var(--ms-teal-lo);border-top-left-radius:6px}
+.panel::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--ms-violet-lo);border-right:2px solid var(--ms-violet-lo);border-bottom-right-radius:6px}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(5,5,16,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--ms-border)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ms-ink)}
+.brand img{width:32px;height:32px}
+.brand span{font-family:var(--ms-font-head);font-weight:800;font-size:1.08rem;letter-spacing:.01em}
+.nav{display:flex;gap:2px;list-style:none;margin:0;padding:0}
+.nav a{display:block;padding:8px 11px;color:var(--ms-ink-dim);text-decoration:none;font-size:.9rem;border-radius:4px}
+.nav a:hover{color:var(--ms-ink);background:var(--ms-bg-elev)}
+.nav a.tip{color:var(--ms-lime)}
+@media (max-width:780px){.nav li:not(.keep){display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
+.hero h1{font-size:clamp(2.8rem,7vw,5.2rem);font-weight:850;letter-spacing:-.03em;line-height:.98;margin-bottom:26px;text-shadow:0 0 40px rgba(0,165,165,.25)}
+.hero .lede{font-size:1.08rem;color:#cfcfe0;margin-bottom:30px;max-width:56ch}
+.actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:22px}
+.fine{font-size:.86rem;color:var(--ms-ink-dim);margin:0}
+.astro{position:relative;width:240px;padding-bottom:26px}
+.astro img{width:100%;filter:drop-shadow(0 0 28px rgba(192,0,224,.35))}
+.astro::after{content:"";position:absolute;left:12%;right:12%;bottom:0;height:22px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,165,165,.45),transparent 70%)}
+@media (max-width:820px){
+  .hero{padding-top:48px}
+  .hero .wrap{grid-template-columns:1fr}
+  .astro{width:170px;order:-1;justify-self:center}
+}
+
+/* ---------- project index terminal ---------- */
+.term{padding:22px 24px 18px;margin-top:40px}
+.term .prompt{color:var(--ms-teal-hi);margin:0 0 14px;font-size:.92rem}
+.term .prompt b{color:var(--ms-lime);font-weight:400}
+.term ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+.term li{opacity:0;animation:line .25s ease-out forwards;animation-delay:calc(.15s + var(--i) * 70ms)}
+.term a{display:grid;grid-template-columns:13ch 1fr auto;gap:12px;align-items:baseline;padding:7px 8px;margin:0 -8px;border-radius:3px;text-decoration:none;color:var(--ms-ink)}
+.term a:hover{background:var(--ms-bg-elev)}
+.term .n{color:var(--ms-lime)}
+.term .b{color:var(--ms-ink-dim);font-size:.88rem}
+.term .t{color:var(--ms-teal-hi);font-size:.82rem}
+@keyframes line{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+@media (max-width:820px){.term ul{grid-template-columns:1fr}.term a{grid-template-columns:12ch 1fr}.term .t{display:none}}
+
+/* ---------- sections ---------- */
+.sec{padding:96px 0 0}
+.mark{display:block;font-size:.9rem;color:var(--ms-teal-lo);margin-bottom:10px}
+.head{margin-bottom:36px}
+.head h2{margin-bottom:14px}
+.head p{color:#c4c4d6;font-size:1.02rem}
+
+/* pinball */
+.feature{display:grid;grid-template-columns:1.25fr 1fr;gap:0}
+.feature .main{padding:34px}
+.feature .main h3{font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:6px}
+.hook{color:var(--ms-lime);font-size:1.02rem;margin-bottom:16px}
+.runs{font-size:.88rem;color:var(--ms-ink-dim);margin-bottom:16px}
+.runs b{color:var(--ms-teal-hi);font-weight:400}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:22px}
+.feature .side{padding:34px;border-left:1px solid var(--ms-border);background:rgba(19,19,40,.55);border-radius:0 6px 6px 0}
+.perks{list-style:none;margin:0;padding:0}
+.perks li{padding:14px 0;border-bottom:1px solid rgba(0,165,165,.14)}
+.perks li:first-child{padding-top:0}
+.perks li:last-child{border-bottom:0;padding-bottom:0}
+.perks b{display:block;font-family:var(--ms-font-head);font-size:1.02rem;color:var(--ms-ink);margin-bottom:3px}
+.perks span{color:#b8b8cc;font-size:.93rem}
+@media (max-width:860px){.feature{grid-template-columns:1fr}.feature .side{border-left:0;border-top:1px solid var(--ms-border);border-radius:0 0 6px 6px}.feature .main,.feature .side{padding:26px}}
+
+/* core roster */
+.roster{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.proj{padding:28px;display:flex;flex-direction:column;scroll-margin-top:84px}
+.proj h3{margin-bottom:6px}
+.proj p{color:#c4c4d6;font-size:.95rem}
+.proj .hook{color:var(--ms-lime);font-size:1rem}
+.steps{margin:0 0 20px;padding:0;list-style:none;counter-reset:s;display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.steps li{counter-increment:s;font-size:.88rem;color:#b8b8cc;padding-left:30px;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:20px;height:20px;border:1px solid var(--ms-teal-lo);border-radius:3px;color:var(--ms-teal-hi);font-size:.75rem;display:grid;place-items:center}
+.proj .cta-row{margin-top:auto;padding-top:8px}
+.proj.wide{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+.proj.wide .cta-row{grid-column:1 / -1}
+.verbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;list-style:none;margin:4px 0 16px;padding:0}
+.verbs li{background:var(--ms-bg-elev);border-left:2px solid var(--ms-teal-lo);padding:8px 10px;font-size:.84rem;color:#b8b8cc;border-radius:3px}
+.verbs b{display:block;color:var(--ms-lime);font-weight:400}
+@media (max-width:860px){.roster{grid-template-columns:1fr}.proj.wide{grid-column:auto;display:flex}.verbs{grid-template-columns:1fr 1fr}}
+
+/* sec */
+#sec .head h2{color:var(--ms-ink)}
+.sec-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}
+.sec-grid .stack{display:grid;gap:20px}
+.proj.big{padding:34px}
+.proj.big h3{font-size:clamp(1.6rem,3vw,2.2rem)}
+.kit{list-style:none;margin:6px 0 18px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kit li{border:1px dashed rgba(0,165,165,.35);border-radius:4px;padding:10px 12px;font-size:.84rem;color:#b8b8cc}
+.kit b{display:block;color:var(--ms-teal-hi);font-weight:400}
+.kit a{font-size:.8rem}
+.rules{margin-top:22px;padding:14px 18px;border-left:2px solid var(--ms-alert);background:rgba(255,34,85,.06);color:#d6c6cf;font-size:.92rem;max-width:none;border-radius:0 4px 4px 0}
+@media (max-width:860px){.sec-grid{grid-template-columns:1fr}.kit,.steps{grid-template-columns:1fr}}
+
+/* crew */
+.crew{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.crew p{color:#c4c4d6}
+.creed{list-style:none;margin:0;padding:0}
+.creed li{padding:16px 0;border-top:1px solid var(--ms-border)}
+.creed li:last-child{border-bottom:1px solid var(--ms-border)}
+.creed b{display:block;font-family:var(--ms-font-head);color:var(--ms-lime);font-size:1.02rem;margin-bottom:2px}
+.creed span{color:#b8b8cc;font-size:.93rem}
+@media (max-width:860px){.crew{grid-template-columns:1fr;gap:28px}}
+
+/* gear */
+.path{padding:22px 24px;margin-bottom:24px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:baseline}
+.path .k{color:var(--ms-lime)}
+.path p{margin:0;color:#c4c4d6}
+.gear{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 36px}
+.gear li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid rgba(0,165,165,.16)}
+.gear h3{font-size:1.04rem}
+.gear p{margin:3px 0 0;font-size:.88rem;color:var(--ms-ink-dim)}
+.gear .btn{padding:10px 14px;font-size:.88rem;flex-shrink:0}
+.disclose{font-size:.84rem;color:var(--ms-ink-dim);margin-top:20px;max-width:none}
+@media (max-width:860px){.gear{grid-template-columns:1fr}.path{grid-template-columns:1fr}}
+
+/* support */
+#support .head h2{color:var(--ms-lime)}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tip{padding:26px;display:flex;flex-direction:column;gap:10px}
+.tip .amt{font-family:var(--ms-font-head);font-weight:850;font-size:2.2rem;line-height:1;color:var(--ms-lime)}
+.tip h3{font-size:1.08rem}
+.tip p{margin:0;color:#b8b8cc;font-size:.92rem}
+.tip .btn,.tip .soon{margin-top:auto;align-self:flex-start}
+.tips-later{padding:22px 24px}
+.tips-later p{margin:0;color:#c4c4d6}
+@media (max-width:860px){.tips{grid-template-columns:1fr}}
+
+footer{margin-top:110px;padding:34px 0 48px;border-top:1px solid var(--ms-border);font-size:.86rem;color:var(--ms-ink-dim)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}
+footer .who{display:flex;align-items:center;gap:10px}
+footer img{width:24px;height:24px}
+footer ul{list-style:none;display:flex;flex-wrap:wrap;gap:18px;margin:0;padding:0}
+footer a{color:var(--ms-ink-dim);text-decoration:none}
+footer a:hover{color:var(--ms-lime)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .term li{opacity:1}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the projects</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="BasaltSoftworks, back to top">
+      <img class="pixel" src="assets/favicon.png" width="32" height="32" alt="">
+      <span>BasaltSoftworks</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="#start">Start here</a></li>
+        <li><a href="#core">MantisCore</a></li>
+        <li><a href="#sec">MantisSec</a></li>
+        <li><a href="#gear">Gear</a></li>
+        <li class="keep"><a class="tip" href="#support">Support</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <h1>Small devices.<br>Big secrets.</h1>
+      <p class="lede">BasaltSoftworks makes games, tools and signal toys for tiny ESP32 boards. Flash them straight from your browser, play without the cloud, and dig as deep as you want. This is where you start.</p>
+      <div class="actions">
+        <a class="btn go" href="#start">Start with Pinball</a>
+        <a class="btn" href="#core">Browse every project</a>
+      </div>
+      <p class="fine">Every project installs from Chrome or Edge with a USB cable. No toolchain, no account.</p>
+    </div>
+    <div class="astro">
+      <img class="pixel" src="assets/mantis-astronaut.png" width="237" height="420" alt="The Mantis in a space suit">
+    </div>
+  </div>
+
+  <div class="wrap">
+    <nav class="panel term" aria-label="All projects">
+      <p class="prompt">$ ls <b>~/mantis</b></p>
+      <ul>
+        <li style="--i:0"><a href="#start"><span class="n">pinball/</span><span class="b">T-Display-S3</span><span class="t">start here</span></a></li>
+        <li style="--i:1"><a href="#synapse"><span class="n">synapse/</span><span class="b">Core2</span><span class="t">fidget + calm</span></a></li>
+        <li style="--i:2"><a href="#spacemantis"><span class="n">spacemantis/</span><span class="b">Core2</span><span class="t">roguelike</span></a></li>
+        <li style="--i:3"><a href="#studio"><span class="n">studio/</span><span class="b">Core2</span><span class="t">make music</span></a></li>
+        <li style="--i:4"><a href="#chat"><span class="n">chat/</span><span class="b">Core2</span><span class="t">mesh chat</span></a></li>
+        <li style="--i:5"><a href="#calc"><span class="n">calc/</span><span class="b">Core2</span><span class="t">multitool</span></a></li>
+        <li style="--i:6"><a href="#csiradar"><span class="n">csiradar32/</span><span class="b">multi-board</span><span class="t">spy kit</span></a></li>
+        <li style="--i:7"><a href="#cam"><span class="n">mantiscam/</span><span class="b">Core2 + CAM</span><span class="t">camera net</span></a></li>
+        <li style="--i:8"><a href="#deviceradar"><span class="n">deviceradar/</span><span class="b">Core2</span><span class="t">signal map</span></a></li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<!-- ================= PINBALL ================= -->
+<section class="sec" id="start">
+  <div class="wrap">
+    <div class="head">
+      <span class="mark">// start here</span>
+      <h2>New here? Start with pinball.</h2>
+      <p>If you're new, this is the one. It's cheap, it fits in your pocket, and it's packed with more than you'd expect.</p>
+    </div>
+
+    <article class="panel feature">
+      <div class="main">
+        <h3>MantisCryptoPinball</h3>
+        <p class="hook">A full pinball table in your hand, and that's just the front door.</p>
+        <p class="runs">Runs on <b>LilyGO T-Display-S3</b></p>
+        <p>Flip, nudge and chase the high score, then go looking for everything else. There's a whole suite of games inside, a mantis to raise, head-to-head play between devices, and Easter eggs hidden all over the place. More than you'll find on your first try.</p>
+        <div class="cta-row">
+          <a class="btn go" href="https://5t31thphoto.github.io/MantisPinball/">Get MantisCryptoPinball</a>
+          <span class="need">No board yet? <a data-aff="tdisplay_s3">Grab a T-Display-S3</a></span>
+        </div>
+      </div>
+      <div class="side">
+        <ul class="perks">
+          <li><b>Offline by default</b><span>It plays with no internet at all. A few hand-picked extras, like live local weather, only turn on if you switch them on. Nothing you do gets sent anywhere.</span></li>
+          <li><b>Quest Mode</b><span>Turn your to-do list and weekly schedule into quests. Keep streaks, earn XP, and unlock rewards that carry into every game in the suite.</span></li>
+          <li><b>Make it yours</b><span>Flash it, theme it, tweak it. Setting up your device is part of owning it, not a chore before the fun starts.</span></li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= MANTISCORE ================= -->
+<section class="sec" id="core">
+  <div class="wrap">
+    <div class="head">
+      <span class="mark">// mantiscore</span>
+      <h2>One Core2. A lot of personalities.</h2>
+      <p>The M5Stack Core2 has a touchscreen, speaker, mic, motion sensor and vibration motor. These projects use every bit of it.</p>
+    </div>
+
+    <ul class="roster">
+      <li class="panel proj" id="synapse">
+        <h3>Mantis Synapse</h3>
+        <p class="hook">Something good to do with your hands that isn't scrolling.</p>
+        <p>A pocket-sized place to fidget, focus or come down. Tilt and poke physics rooms full of glowing liquid, sand and water, fly through fractals and portals, watch the room's sound turn into light, slow down with guided breathing, or just watch the mantis dance.</p>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/mantis-synapse/">Get Synapse</a>
+          <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+        </div>
+      </li>
+
+      <li class="panel proj" id="studio">
+        <h3>MantisStudio</h3>
+        <p class="hook">A full music workstation that fits in your palm.</p>
+        <p>Touch-first drums, lead and bass that are locked to a scale so nothing sounds wrong, tilt to sweep the filter, sample your own sounds into the pads, record your voice over the loop, mix it, and save your songs. There's also a surprise inside. We're not saying what.</p>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/mantis-studio/">Get MantisStudio</a>
+          <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+        </div>
+      </li>
+
+      <li class="panel proj wide" id="spacemantis">
+        <div>
+          <h3>SpaceMantis</h3>
+          <p class="hook">Lost in space. No map. Dive deeper.</p>
+          <p>A roguelike space career packed into a tiny device. There's no galaxy map and no plotted course, only gates you've heard rumors about and whatever you find on the other side. Lose your ship and your escape pod gets recovered far away. Your rank survives. The sky doesn't.</p>
+        </div>
+        <div>
+          <ul class="verbs">
+            <li><b>hail</b>trade, bluff, rumors</li>
+            <li><b>attack</b>fast combat</li>
+            <li><b>dock</b>work and gear</li>
+            <li><b>mine</b>and scoop</li>
+            <li><b>chart</b>names that last</li>
+            <li><b>dive</b>through gates</li>
+          </ul>
+          <p class="dim">Drag to look around, tilt to aim. Original world and lore, built from scratch.</p>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/spacemantis/">Get SpaceMantis</a>
+          <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+        </div>
+      </li>
+
+      <li class="panel proj" id="chat">
+        <h3>Mantis Chat</h3>
+        <p class="hook">Talk to your crew. No internet required.</p>
+        <p>Device-to-device chat over a local mesh: no accounts, no servers, no phone number. Send messages, draw together on a shared whiteboard, and ping friends who are running MantisCryptoPinball.</p>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/mantischat/">Get Mantis Chat</a>
+          <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+        </div>
+      </li>
+
+      <li class="panel proj" id="calc">
+        <h3>MantisCalc</h3>
+        <p class="hook">The ultimate calculator.</p>
+        <p>An engineering and trades multitool in the spirit of the classic button-packed calculators. Built for real projects: the workbench, the garage, the job site and the homework that actually matters.</p>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/MantisCalc/">Get MantisCalc</a>
+          <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= MANTISSEC ================= -->
+<section class="sec" id="sec">
+  <div class="wrap">
+    <div class="head">
+      <span class="mark">// mantissec</span>
+      <h2>See the signals everyone else ignores.</h2>
+      <p>Wi-Fi and Bluetooth are all around you, all the time. These tools make that invisible traffic something you can watch, map and understand.</p>
+    </div>
+
+    <div class="sec-grid">
+      <article class="panel proj big" id="csiradar">
+        <h3>CsiRadar32</h3>
+        <p class="hook">See who's in the room. Without a camera.</p>
+        <p>Our full spy kit. Tiny beacons fill a room with Wi-Fi, receivers read how those signals bend around moving bodies, and after a quick calibration walk you get a live top-down map of movement in the space. Nothing calls home and nothing sees through your walls. It's just Wi-Fi, read like light.</p>
+        <ol class="steps">
+          <li>Flash every board from your browser</li>
+          <li>Set the beacons around the room</li>
+          <li>Walk the 90-second calibration</li>
+          <li>Watch the live map</li>
+        </ol>
+        <ul class="kit">
+          <li><b>beacons</b>XIAO ESP32-C3 x3<br><a data-aff="xiao_c3">get them</a></li>
+          <li><b>receivers</b>T-Display-S3 x1–2<br><a data-aff="tdisplay_s3">get them</a></li>
+          <li><b>probe</b>Cardputer-Adv or Core2<br><a data-aff="cardputer_adv">get one</a></li>
+        </ul>
+        <div class="cta-row">
+          <a class="btn" href="https://5t31thphoto.github.io/CSIRadar32/">Get CsiRadar32</a>
+        </div>
+      </article>
+
+      <div class="stack">
+        <article class="panel proj" id="cam">
+          <h3>Mantis Cam</h3>
+          <p class="hook">Your own camera network. No cloud account.</p>
+          <p>Set up a fleet of tiny ESP32-CAM cameras, then scan for them on your Core2 and hop between feeds with a tap.</p>
+          <div class="cta-row">
+            <a class="btn" href="https://5t31thphoto.github.io/MantisCam/">Get Mantis Cam</a>
+            <span class="need"><a data-aff="esp32cam">Get ESP32-CAMs</a></span>
+          </div>
+        </article>
+
+        <article class="panel proj" id="deviceradar">
+          <h3>Device Radar</h3>
+          <p class="hook">Hold still. Turn once. Map every signal.</p>
+          <p>Spin in a circle and watch every Wi-Fi network and Bluetooth device around you land on a radar by direction and strength. A fast way to find out how chatty the gadgets near you really are.</p>
+          <div class="cta-row">
+            <a class="btn" href="https://5t31thphoto.github.io/device_radar/">Get Device Radar</a>
+            <span class="need">Runs on Core2. <a data-aff="core2">Need one?</a></span>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <p class="rules">White-hat rules: point MantisSec at your own gear and your own spaces, and get permission everywhere else.</p>
+  </div>
+</section>
+
+<!-- ================= CREW ================= -->
+<section class="sec" id="crew">
+  <div class="wrap crew">
+    <div>
+      <span class="mark">// who we are</span>
+      <h2>Who's behind the mantis</h2>
+      <p style="margin-top:20px">BasaltSoftworks is a small family team. We build firmware to solve our own problems, then share it with our friends. Now that includes you.</p>
+      <p>We make games and tools for people who would rather be out in the real world than stuck in the cloud or lost in a feed. Everything runs on hardware you can hold, and every project is built to be customized, because tinkering with your device is part of owning it.</p>
+      <p>If any of this reminds you of the best era of tech, with real gadgets that had personality and secrets worth finding, that's not an accident.</p>
+    </div>
+    <ul class="creed">
+      <li><b>Learn the real thing</b><span>Flashing microcontrollers, how firmware works, how networks and games actually tick. We show you how it all works without killing the magic.</span></li>
+      <li><b>Offline first</b><span>Your device works for you, not for a server somewhere else.</span></li>
+      <li><b>Everything connects</b><span>Our projects talk to each other, share progress and reward you for exploring.</span></li>
+      <li><b>Secrets included</b><span>Poke around. Some of the best stuff isn't in any menu.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= GEAR ================= -->
+<section class="sec" id="gear">
+  <div class="wrap">
+    <div class="head">
+      <span class="mark">// gear</span>
+      <h2>The boards we build on</h2>
+      <p>Everything here runs on cheap, off-the-shelf hardware. Grabbing yours through these links costs you nothing extra and sends a little back to the team. That money goes straight into new boards and the next project.</p>
+    </div>
+
+    <div class="panel path">
+      <span class="k">new here?</span>
+      <p>Start with a T-Display-S3 and MantisCryptoPinball. Ready for more? One Core2 runs seven of our projects.</p>
+    </div>
+
+    <ul class="gear">
+      <li>
+        <div><h3>LilyGO T-Display-S3</h3><p>MantisCryptoPinball and CsiRadar32 receivers</p></div>
+        <a class="btn" data-aff="tdisplay_s3">Shop</a>
+      </li>
+      <li>
+        <div><h3>M5Stack Core2</h3><p>All of MantisCore, Device Radar, Mantis Cam and the CsiRadar32 probe</p></div>
+        <a class="btn" data-aff="core2">Shop</a>
+      </li>
+      <li>
+        <div><h3>M5Stack Cardputer-Adv</h3><p>Pocket keyboard computer and upgraded CsiRadar32 probe</p></div>
+        <a class="btn" data-aff="cardputer_adv">Shop</a>
+      </li>
+      <li>
+        <div><h3>Seeed XIAO ESP32-C3</h3><p>CsiRadar32 beacons, three to a kit</p></div>
+        <a class="btn" data-aff="xiao_c3">Shop</a>
+      </li>
+      <li>
+        <div><h3>Seeed XIAO ESP32-S3</h3><p>Beacon alternative if you already have some</p></div>
+        <a class="btn" data-aff="xiao_s3">Shop</a>
+      </li>
+      <li>
+        <div><h3>ESP32-CAM with USB programmer</h3><p>The cameras behind Mantis Cam</p></div>
+        <a class="btn" data-aff="esp32cam">Shop</a>
+      </li>
+      <li data-optional>
+        <div><h3>MicroSD card</h3><p>Save songs, sessions and extras on Core2 projects</p></div>
+        <a class="btn" data-aff="microsd">Shop</a>
+      </li>
+      <li data-optional>
+        <div><h3>USB-C data cable</h3><p>A real data cable, not charge-only, so flashing just works</p></div>
+        <a class="btn" data-aff="usbc_cable">Shop</a>
+      </li>
+    </ul>
+    <p class="disclose">As an Amazon Associate I earn from qualifying purchases.</p>
+  </div>
+</section>
+
+<!-- ================= SUPPORT ================= -->
+<section class="sec" id="support">
+  <div class="wrap">
+    <div class="head">
+      <span class="mark">// support</span>
+      <h2>Back the team</h2>
+      <p>If one of our projects made your day, taught you something, or got you flashing your first board, a tip helps us build the next one.</p>
+    </div>
+
+    <div class="tips" id="tipsLive">
+      <div class="panel tip">
+        <span class="amt">$5</span>
+        <h3>A spool of solder</h3>
+        <p>Keeps the irons hot and the prototypes coming.</p>
+        <a class="btn go" data-tip="small">Tip $5</a>
+      </div>
+      <div class="panel tip">
+        <span class="amt">$15</span>
+        <h3>A new dev board</h3>
+        <p>Helps us port to new hardware and test on more devices.</p>
+        <a class="btn go" data-tip="medium">Tip $15</a>
+      </div>
+      <div class="panel tip">
+        <span class="amt">You pick</span>
+        <h3>Name your amount</h3>
+        <p>Every bit goes straight back into the projects.</p>
+        <a class="btn go" data-tip="custom">Choose an amount</a>
+      </div>
+    </div>
+    <div class="panel tips-later" id="tipsLater" hidden>
+      <p>Tips are opening soon. Until then, grabbing your boards through the gear links above is the best way to back the team.</p>
+    </div>
+    <p class="disclose" id="tipsFine">Payments are handled securely by Stripe and you'll get a receipt by email. Tips go to the team and aren't tax-deductible.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="who"><img class="pixel" src="assets/favicon-32.png" width="24" height="24" alt="">&copy; <span id="yr">2026</span> BasaltSoftworks</span>
+    <ul>
+      <li><a href="#start">Start here</a></li>
+      <li><a href="#core">MantisCore</a></li>
+      <li><a href="#sec">MantisSec</a></li>
+      <li><a href="#gear">Gear</a></li>
+      <li><a href="#support">Support</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+/* ==================================================================
+   LINKS YOU EDIT. Paste a URL between the quotes, save, upload.
+   Empty = the button shows "Link coming soon" (or the item hides,
+   for the optional extras).
+   ================================================================== */
+const AFFILIATE = {
+  tdisplay_s3:   "https://www.amazon.com/dp/B0BRTT727Z/?tag=5t31th-20",
+  core2:         "https://www.amazon.com/dp/B0H79XYB8R/?tag=5t31th-20",
+  cardputer_adv: "https://www.amazon.com/dp/B0G6ZN35ZX/?tag=5t31th-20",
+  xiao_c3:       "https://www.amazon.com/dp/B0DGX3LSC7/?tag=5t31th-20",
+  xiao_s3:       "https://www.amazon.com/dp/B0DJ6NQFKX/?tag=5t31th-20",
+  esp32cam:      "",   // ESP32-CAM bundle WITH the USB programmer base
+  microsd:       "",   // optional: hidden until filled in
+  usbc_cable:    ""    // optional: hidden until filled in
+};
+
+const TIPS = {
+  small:  "",   // $5 Stripe Payment Link
+  medium: "",   // $15 Stripe Payment Link
+  custom: ""    // pick-your-amount Stripe Payment Link
+};
+/* ================================================================== */
+
+document.querySelectorAll("[data-aff]").forEach(a => {
+  const url = (AFFILIATE[a.dataset.aff] || "").trim();
+  if (url) {
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "sponsored noopener";
+    return;
+  }
+  const row = a.closest("[data-optional]");
+  if (row) { row.remove(); return; }
+  if (a.classList.contains("btn")) {
+    const s = document.createElement("span");
+    s.className = "soon";
+    s.textContent = "Link coming soon";
+    a.replaceWith(s);
+  } else {
+    const need = a.closest(".need");
+    const prev = a.previousElementSibling;
+    if (prev && prev.tagName === "BR") prev.remove();
+    a.remove();
+    if (need && !need.textContent.trim()) need.remove();
+  }
+});
+
+const anyTip = Object.values(TIPS).some(v => v.trim());
+if (!anyTip) {
+  document.getElementById("tipsLive").hidden = true;
+  document.getElementById("tipsFine").hidden = true;
+  document.getElementById("tipsLater").hidden = false;
+} else {
+  document.querySelectorAll("[data-tip]").forEach(a => {
+    const url = (TIPS[a.dataset.tip] || "").trim();
+    if (url) { a.href = url; }
+    else {
+      const s = document.createElement("span");
+      s.className = "soon";
+      s.textContent = "Coming soon";
+      a.replaceWith(s);
+    }
+  });
+}
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
